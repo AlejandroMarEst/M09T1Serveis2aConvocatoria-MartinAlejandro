@@ -170,7 +170,22 @@ namespace Exercici5API.Controllers
 
             return BadRequest(result.Errors);
         }
+        [HttpGet("clients")]
+        public async Task<IActionResult> GetAllClients()
+        {
+            var usersInRole = await _userManager.GetUsersInRoleAsync("Client");
 
+            var clientList = usersInRole.Select(u => new
+            {
+                u.CompanyName,
+                u.CEOName,
+                u.NumberOfAttendees,
+                u.IsVip,
+                u.RegisteredAt
+            });
+
+            return Ok(clientList);
+        }
         private string CreateToken(Claim[] claims) // Creates the token for the current user
         {
             var jwtConfig = _configuration.GetSection("JwtSettings");
