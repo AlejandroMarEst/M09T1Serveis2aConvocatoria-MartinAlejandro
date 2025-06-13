@@ -2,7 +2,7 @@
 
 namespace Exercici5API.DTOs
 {
-    public class WorkerRegisterDTO
+    public class LoginDTO
     {
         [Required]
         public string Email { get; set; }
