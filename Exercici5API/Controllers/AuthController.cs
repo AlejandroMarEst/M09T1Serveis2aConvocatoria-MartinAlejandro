@@ -150,6 +150,27 @@ namespace Exercici5API.Controllers
             }
             return BadRequest(result.Errors);
         }
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{email}")]
+        public async Task<IActionResult> DeleteUser(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok("User deleted successfully.");
+            }
+
+            return BadRequest(result.Errors);
+        }
+
         private string CreateToken(Claim[] claims) // Creates the token for the current user
         {
             var jwtConfig = _configuration.GetSection("JwtSettings");
