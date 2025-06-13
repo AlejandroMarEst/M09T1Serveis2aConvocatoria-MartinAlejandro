@@ -29,7 +29,7 @@ namespace Exercici5API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] ClientRegisterDTO userDTO) // Register a new user
         {
-            var user = new User { UserName = userDTO.Email, Email = userDTO.Email, CEOName = userDTO.CEOName, CompanyName = userDTO.CompanyName, IsVip  = userDTO.IsVip, NumberOfAttendees = userDTO.NumberOfAttendees};
+            var user = new User { UserName = userDTO.Email, Email = userDTO.Email, CEOName = userDTO.CEOName, CompanyName = userDTO.CompanyName, IsVip  = userDTO.IsVip, NumberOfAttendees = userDTO.NumberOfAttendees, RegisteredAt = DateTime.Now};
             var result = await _userManager.CreateAsync(user, userDTO.Password);
             var roleResult = new IdentityResult();
 
@@ -150,8 +150,8 @@ namespace Exercici5API.Controllers
             }
             return BadRequest(result.Errors);
         }
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{email}")]
+        [Authorize(Roles = "Sales, Admin")]
+        [HttpDelete("delete/{email}")]
         public async Task<IActionResult> DeleteUser(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -177,6 +177,7 @@ namespace Exercici5API.Controllers
 
             var clientList = usersInRole.Select(u => new
             {
+                u.Email,
                 u.CompanyName,
                 u.CEOName,
                 u.NumberOfAttendees,
@@ -185,6 +186,38 @@ namespace Exercici5API.Controllers
             });
 
             return Ok(clientList);
+        }
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetAllClients(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            ClientInfoDTO client = new ClientInfoDTO();
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                client.Email = user.Email;
+            }
+            if (!string.IsNullOrEmpty(user.CompanyName))
+            {
+                client.CompanyName = user.CompanyName;
+            }
+            if (!string.IsNullOrEmpty(user.CEOName))
+            {
+                client.CEOName = user.CEOName;
+            }
+            if (user.NumberOfAttendees.HasValue)
+            {
+                client.NumberOfAttendees = user.NumberOfAttendees.Value;
+            }
+            if (user.IsVip.HasValue)
+            {
+                client.IsVip = user.IsVip.Value;
+            }
+            client.RegisterDate = user.RegisteredAt;
+            return Ok(client);
         }
         private string CreateToken(Claim[] claims) // Creates the token for the current user
         {

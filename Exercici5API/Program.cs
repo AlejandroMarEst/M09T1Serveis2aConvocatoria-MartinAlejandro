@@ -90,6 +90,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await Seeder.CreateInitialRoles(services);
+    await Seeder.CreateInitialUsers(services); 
 }
 
 // Configure the HTTP request pipeline.

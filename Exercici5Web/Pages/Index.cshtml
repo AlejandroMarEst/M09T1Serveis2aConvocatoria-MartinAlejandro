@@ -1,10 +1,40 @@
 ﻿@page
+@using Exercici5Web.Tools
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
+    var token = HttpContext.Session.GetString("AuthToken");
+    var userRoles = TokenHelper.GetUserRoles(token).ToList();
+    var isAuthorized = userRoles.Contains("Admin") || userRoles.Contains("Sales");
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center d-flex flex-column align-items-center">
+    @foreach (var clie in Model.ClientList.OrderBy(p => p.CompanyName))
+    {
+        <div class="card width-index p-3 mb-3">
+            <h3>@clie.CompanyName</h3>
+            <p>@clie.CEOName</p>
+            <p>Attendees: @clie.NumberOfAttendees</p>
+            @if (clie.IsVip)
+            {
+                <p>VIP</p>
+            }
+            else
+            {
+                <p>Not VIP</p>
+            }
+            <p>Registered: @clie.RegisterDate</p>
+
+            @if (isAuthorized)
+            {
+                <div class="mt-2">
+                    <a asp-page="/EditClient" asp-route-email="@clie.Email" class="btn btn-primary me-2">Edit</a>
+                    <form method="post" asp-page="Delete" asp-route-email="@clie.Email" class="d-inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this client?');">Delete</button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+    <p>Total Attendees: @Model.ClientList.Sum(p=>p.NumberOfAttendees)</p>
 </div>

@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var loggedIn = Tools.TokenHelper.IsTokenSession(Context.Session.GetString("AuthToken"));
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -23,9 +26,32 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        @if (loggedIn)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Chat">
+                                    <i class="bi bi-person">Chat</i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/UserLogout">
+                                    <i class="bi bi-person">Tancar sessio</i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item flex-display">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/UserLogin">
+                                    <i class="bi bi-person">Login</i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-dark" asp-area="" asp-page="/UserRegister">
+                                    <i class="bi bi-person">Registrar-se</i>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
