@@ -43,7 +43,7 @@ namespace Exercici5API.Controllers
 
             return BadRequest(result.Errors);
         }
-        [Authorize(Roles = "Sells,Admin")]
+        [Authorize(Roles = "Sales,Admin")]
         [HttpPost("registerSells")]
         public async Task<IActionResult> RegisterSells([FromBody] WorkerRegisterDTO userDTO) // Register a new user
         {
@@ -53,7 +53,7 @@ namespace Exercici5API.Controllers
 
             if (result.Succeeded)
             {
-                roleResult = await _userManager.AddToRoleAsync(user, "Sells");
+                roleResult = await _userManager.AddToRoleAsync(user, "Sales");
             }
             if (result.Succeeded && roleResult.Succeeded)
             {
