@@ -2,6 +2,7 @@
 using Exercici5API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -116,6 +117,38 @@ namespace Exercici5API.Controllers
             var token = CreateToken(claims.ToArray());
 
             return Ok(token);
+        }
+        [Authorize(Roles = "Admin, Sales")]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser([FromBody]ClientUpdateDTO client)
+        {
+            var user = await _userManager.FindByEmailAsync(client.Email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            if (!string.IsNullOrEmpty(client.CompanyName))
+            {
+                user.CompanyName = client.CompanyName;
+            }
+            if (!string.IsNullOrEmpty(client.CEOName))
+            {
+                user.CEOName = client.CEOName;
+            }
+            if (client.NumberOfAttendees.HasValue)
+            {
+                user.NumberOfAttendees = client.NumberOfAttendees.Value;
+            }
+            if (client.IsVip.HasValue)
+            {
+                user.IsVip = client.IsVip.Value;
+            }
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("User updated successfully.");
+            }
+            return BadRequest(result.Errors);
         }
         private string CreateToken(Claim[] claims) // Creates the token for the current user
         {
