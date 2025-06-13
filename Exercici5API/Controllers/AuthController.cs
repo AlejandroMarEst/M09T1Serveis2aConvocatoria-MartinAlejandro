@@ -119,7 +119,7 @@ namespace Exercici5API.Controllers
             return Ok(token);
         }
         [Authorize(Roles = "Admin, Sales")]
-        [HttpPut]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody]ClientUpdateDTO client)
         {
             var user = await _userManager.FindByEmailAsync(client.Email);
