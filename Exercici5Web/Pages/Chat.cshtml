@@ -1,0 +1,55 @@
+﻿@page
+@model Exercici5Web.Pages.ChatModel
+@{
+	ViewData["Title"] = "Live Chat";
+}
+<h2>Live Chat</h2>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="mb-3">
+    <label>Usuari</label>
+    <input id="userInput" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label>Missatge</label>
+    <input id="messageInput" class="form-control" />
+</div>
+
+<button class="btn btn-primary" id="sendButton">Enviar</button>
+
+<hr />
+
+<ul id="messagesList"></ul>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7097/chatHub")  
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveMessage", fullMessage => {
+            const entrada = document.createElement("li");
+            entrada.textContent = fullMessage;
+            document.getElementById("messagesList").appendChild(entrada);
+        });
+
+        connection.start()
+            .then(() => console.log("Connectat a SignalR"))
+            .catch(err => console.error("Error de connexió:", err));
+
+        document.getElementById("sendButton").addEventListener("click", () => {
+            const usuari = document.getElementById("userInput").value;
+            const missatge = document.getElementById("messageInput").value;
+            connection.invoke("SendMessage", usuari, missatge)
+                .catch(err => console.error("Error en enviar:", err));
+        });
+    </script>
+}
+
