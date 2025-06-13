@@ -1,4 +1,5 @@
 using Exercici5API.Data;
+using Exercici5API.Hubs;
 using Exercici5API.Models;
 using Exercici5API.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +52,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.WithOrigins("https://localhost:7050") // URL del client Razor Pages
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -83,6 +94,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -102,9 +114,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();
